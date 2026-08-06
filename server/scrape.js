@@ -5,14 +5,14 @@ import { fileURLToPath } from "node:url";
 
 const API_BASE =
   process.env.ATCS_API_BASE || "https://atcs.denpasarkota.go.id/api/v3/pv/ldevice";
-// Public credentials from the official site's client JS (see README). Overridable via .env.
+const CLIENT_ID = process.env.ATCS_CLIENT_ID || "";
+const CLIENT_SECRET = process.env.ATCS_CLIENT_SECRET || "";
+// Credentials are public (from the official site's client JS) but must be
+// provided via .env to keep committed files clean for secret scanners.
 const HEADERS = {
   "Content-Type": "application/json",
-  "x-client-id":
-    process.env.ATCS_CLIENT_ID || "a194e6ae-d4dd-4b62-a0ac-388922f09303",
-  "x-client-secret":
-    process.env.ATCS_CLIENT_SECRET ||
-    "f430fde38a031fb657a2a7d6f84644a9aed767a4c22314d4b7c565648acc2396",
+  ...(CLIENT_ID ? { "x-client-id": CLIENT_ID } : {}),
+  ...(CLIENT_SECRET ? { "x-client-secret": CLIENT_SECRET } : {}),
 };
 
 async function fetchPage(page, paginate = 100) {
@@ -25,6 +25,11 @@ async function fetchPage(page, paginate = 100) {
 }
 
 export async function scrape() {
+  if (!CLIENT_ID || !CLIENT_SECRET) {
+    throw new Error(
+      "Kredensial ATCS belum diisi. Salin .env.example ke .env lalu isi ATCS_CLIENT_ID dan ATCS_CLIENT_SECRET (kredensial publik dari situs resmi)."
+    );
+  }
   let rows = [];
   const first = await fetchPage(1);
   rows = rows.concat(first.data);

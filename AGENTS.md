@@ -23,7 +23,7 @@ All activity (backend + frontend) is appended to `data/app.log` (gitignored via 
 ## Data source (verified)
 
 `GET https://atcs.denpasarkota.go.id/api/v3/pv/ldevice`
-- Headers: `Content-Type: application/json`, `x-client-id`, `x-client-secret`. These are **public** creds hardcoded in the site's client JS — not secrets, do not treat as such. Defaults live in `server/scrape.js`; override via `.env` (`ATCS_CLIENT_ID`, `ATCS_CLIENT_SECRET`, `ATCS_API_BASE`). `npm run ...` loads `.env` with `--env-file-if-exists=.env`.
+- Headers: `Content-Type: application/json`, `x-client-id`, `x-client-secret`. These are **public** creds hardcoded in the site's client JS — not secrets, do not treat as such. They are **not** hardcoded in the repo (kept out to stay clean for secret scanners): set them in `.env` (`ATCS_CLIENT_ID`, `ATCS_CLIENT_SECRET`, `ATCS_API_BASE`). `npm run ...` loads `.env` with `--env-file-if-exists=.env`; without them `scrape()` throws a clear error.
 - Params: `page`, `paginate` (max 100; 109 cameras = 2 pages), `orderBy`, `sortedBy`, `idlok` (filter one location).
 - Response: `{ success, message, data[], meta: { total, pages } }`. Each item: location fields (`id_lokasi`, `nama_lokasi`, `ket_lokasi`, `lat_lokasi`, `lon_lokasi`, `is_active`) + `tb_device_lokasi[0]` (device: `nama`, `nama_alias`, `deskripsi`, `name_proxy_cam`, `url_proxy_hls`, `poster`, `url_video`) + `tb_lokasi_kota` (city/province).
 

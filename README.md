@@ -222,10 +222,10 @@ Copy-Item .env.example .env   # Windows PowerShell
 | `CCTV_LOG` | `data/app.log` | Jalur file log |
 | `CCTV_DB` | `data/cctv.db` | Jalur database SQLite |
 | `ATCS_API_BASE` | `https://atcs.denpasarkota.go.id/api/v3/pv/ldevice` | Endpoint API ATCS |
-| `ATCS_CLIENT_ID` | `a194e6ae-...` | Kredensial publik klien ATCS |
-| `ATCS_CLIENT_SECRET` | `f430fde3...` | Kredensial publik klien ATCS |
+| `ATCS_CLIENT_ID` | *(diisi, kredensial publik)* | Kredensial publik klien ATCS |
+| `ATCS_CLIENT_SECRET` | *(diisi, kredensial publik)* | Kredensial publik klien ATCS |
 
-> `.env` gitignored; `.env.example` di-commit sebagai template.
+> `.env` gitignored; `.env.example` di-commit sebagai template. Kredensial ATCS tidak di-hardcode di repo agar bersih dari secret scanner — isi di `.env` (nilai publik tersedia di kode klien situs resmi). Tanpa diisi, `npm run scrape` menampilkan pesan error yang jelas.
 
 ---
 

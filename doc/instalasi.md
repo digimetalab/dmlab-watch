@@ -75,11 +75,13 @@ Copy-Item .env.example .env   # Windows PowerShell
 | `CCTV_LOG` | `data/app.log` | Jalur file log |
 | `CCTV_DB` | `data/cctv.db` | Jalur database SQLite |
 | `ATCS_API_BASE` | `https://atcs.denpasarkota.go.id/api/v3/pv/ldevice` | Endpoint API ATCS |
-| `ATCS_CLIENT_ID` | `a194e6ae-...` | Kredensial publik klien ATCS |
-| `ATCS_CLIENT_SECRET` | `f430fde3...` | Kredensial publik klien ATCS |
+| `ATCS_CLIENT_ID` | *(diisi, kredensial publik)* | Kredensial publik klien ATCS |
+| `ATCS_CLIENT_SECRET` | *(diisi, kredensial publik)* | Kredensial publik klien ATCS |
 
 > `.env` bersifat lokal (gitignored). `.env.example` boleh di-commit sebagai template.
-> Kredensial ATCS adalah **publik** (tertanam di kode klien situs resmi) — bukan rahasia.
+> Kredensial ATCS adalah **publik** (tertanam di kode klien situs resmi) — bukan rahasia,
+> namun sengaja **tidak** di-hardcode di repo agar bersih dari secret scanner. Isi di `.env`
+> sebelum `npm run scrape` (tanpa diisi, scrape menampilkan pesan error yang jelas).
 > `npm run ...` otomatis memuat `.env` jika ada.
 
 Contoh:
