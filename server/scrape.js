@@ -3,11 +3,16 @@ import { log } from "./logger.js";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-const API_BASE = "https://atcs.denpasarkota.go.id/api/v3/pv/ldevice";
+const API_BASE =
+  process.env.ATCS_API_BASE || "https://atcs.denpasarkota.go.id/api/v3/pv/ldevice";
+// Public credentials from the official site's client JS (see README). Overridable via .env.
 const HEADERS = {
   "Content-Type": "application/json",
-  "x-client-id": "a194e6ae-d4dd-4b62-a0ac-388922f09303",
-  "x-client-secret": "f430fde38a031fb657a2a7d6f84644a9aed767a4c22314d4b7c565648acc2396",
+  "x-client-id":
+    process.env.ATCS_CLIENT_ID || "a194e6ae-d4dd-4b62-a0ac-388922f09303",
+  "x-client-secret":
+    process.env.ATCS_CLIENT_SECRET ||
+    "f430fde38a031fb657a2a7d6f84644a9aed767a4c22314d4b7c565648acc2396",
 };
 
 async function fetchPage(page, paginate = 100) {

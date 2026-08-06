@@ -1,5 +1,24 @@
 # DML CCTV — Multi Layar 3×3 Live CCTV
 
+<div align="center">
+
+![Version](https://img.shields.io/badge/Version-1.0.0-0ea5e9?style=flat-square)
+![Node](https://img.shields.io/badge/Node.js-20%2B-22c55e?style=flat-square&logo=nodedotjs&logoColor=white)
+![React](https://img.shields.io/badge/React-19-22c55e?style=flat-square&logo=react&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-6-a855f7?style=flat-square&logo=vite&logoColor=white)
+![Express](https://img.shields.io/badge/Express-4-000000?style=flat-square&logo=express&logoColor=white)
+![SQLite](https://img.shields.io/badge/SQLite-better--sqlite3-64748b?style=flat-square&logo=sqlite&logoColor=white)
+![Leaflet](https://img.shields.io/badge/Leaflet-1.9-65a30d?style=flat-square&logo=leaflet&logoColor=white)
+![Tailwind](https://img.shields.io/badge/Tailwind_CSS-4-38bdf8?style=flat-square&logo=tailwindcss&logoColor=white)
+
+![Last Commit](https://img.shields.io/github/last-commit/digimetalab/dml-cctv?style=flat-square&color=64748b)
+![Repo Size](https://img.shields.io/github/repo-size/digimetalab/dml-cctv?style=flat-square&color=64748b)
+![Language](https://img.shields.io/github/languages/top/digimetalab/dml-cctv?style=flat-square&color=64748b)
+![GitHub Stars](https://img.shields.io/github/stars/digimetalab/dml-cctv?style=flat-square&color=64748b)
+![License](https://img.shields.io/badge/License-Privacy_Reserved-ef4444?style=flat-square)
+
+</div>
+
 Aplikasi pemantau CCTV **multi-layar 3×3 (landscape)** yang menampilkan kamera lalu lintas publik Kota Denpasar secara **real-time**. Data kamera di-scrape dari situs publik ATCS Kota Denpasar, disimpan dalam database SQLite, lalu ditampilkan dalam grid 3×3 yang bisa diatur sesuai kebutuhan.
 
 > Dikembangkan oleh **[Digimetalab](https://digimetalab.my.id)** · [digimetalab@gmail.com](mailto:digimetalab@gmail.com)
@@ -136,6 +155,18 @@ dml-cctv/
 
 ---
 
+## Dokumentasi
+
+| Dokumen | Isi |
+|---|---|
+| [Petunjuk Penggunaan](doc/petunjuk-penggunaan.md) | Panduan memakai aplikasi (grid, profil, peta, tema, fullscreen) |
+| [Instalasi](doc/instalasi.md) | Instalasi, konfigurasi, dan menjalankan |
+| [Panduan API](doc/api.md) | Referensi endpoint REST API |
+| [Panduan Pengembangan](doc/pengembangan.md) | Arsitektur & cara menambah fitur |
+| [Pemecahan Masalah](doc/pemecahan-masalah.md) | Solusi masalah umum |
+
+---
+
 ## API
 
 ### Cameras
@@ -179,11 +210,22 @@ Semua aktivitas (backend + frontend) dicatat ke `data/app.log`:
 
 ## Konfigurasi Environment
 
+Salin `.env.example` → `.env` lalu ubah sesuai kebutuhan:
+
+```powershell
+Copy-Item .env.example .env   # Windows PowerShell
+```
+
 | Variabel | Default | Fungsi |
 |---|---|---|
 | `PORT` | `3001` | Port server API |
 | `CCTV_LOG` | `data/app.log` | Jalur file log |
 | `CCTV_DB` | `data/cctv.db` | Jalur database SQLite |
+| `ATCS_API_BASE` | `https://atcs.denpasarkota.go.id/api/v3/pv/ldevice` | Endpoint API ATCS |
+| `ATCS_CLIENT_ID` | `a194e6ae-...` | Kredensial publik klien ATCS |
+| `ATCS_CLIENT_SECRET` | `f430fde3...` | Kredensial publik klien ATCS |
+
+> `.env` gitignored; `.env.example` di-commit sebagai template.
 
 ---
 

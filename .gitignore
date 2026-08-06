@@ -4,3 +4,8 @@ data/*.db
 data/*.db-*
 *.log
 .DS_Store
+
+# Environment — file lokal jangan di-commit (contoh: .env.example boleh di-commit)
+.env
+.env.local
+.env.*.local
