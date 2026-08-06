@@ -1,0 +1,75 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.dark body {
+  background: #0b0f17;
+  color: #e5e7eb;
+}
+
+.iframe-video {
+  border: 0;
+  pointer-events: auto;
+}
+
+.cctv-marker .pin {
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+  border: 2px solid #fff;
+  color: #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cctv-marker .pin-live {
+  background: #16a34a;
+}
+
+.cctv-marker .pin-dead {
+  background: #dc2626;
+}
+
+.cctv-marker .pin-unknown {
+  background: #6b7280;
+}
+
+.cctv-marker .pin-layout {
+  background: #d97706;
+}
+
+.cctv-marker .pin-active {
+  background: #f9fafb;
+  color: #111827;
+  border-color: #111827;
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.4);
+}
+
+.sw-live {
+  background: #16a34a;
+}
+
+.sw-dead {
+  background: #dc2626;
+}
+
+.sw-layout {
+  background: #d97706;
+}
+
+.sw-active {
+  background: #f9fafb;
+  border-color: #111827 !important;
+}

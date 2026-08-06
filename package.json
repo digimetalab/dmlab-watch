@@ -1,0 +1,29 @@
+{
+  "name": "dml-cctv",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Multi-screen 3x3 CCTV viewer (Denpasar ATCS) with SQLite camera database",
+  "scripts": {
+    "scrape": "node server/scrape.js",
+    "dev": "concurrently -k -n api,web -c blue,green \"node server/index.js\" \"vite\"",
+    "build": "vite build",
+    "start": "node server/index.js",
+    "db:init": "node server/db.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^13.0.3",
+    "express": "^4.21.2",
+    "leaflet": "^1.9.4",
+    "lucide-react": "^1.28.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "@vitejs/plugin-react": "^4.3.4",
+    "concurrently": "^9.1.2",
+    "tailwindcss": "^4.3.3",
+    "vite": "^6.0.7"
+  }
+}
