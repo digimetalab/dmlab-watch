@@ -46,7 +46,7 @@ const TYPE_STYLE = {
 export default function ToastContainer() {
   const items = useToasts();
   return (
-    <div className="fixed bottom-4 right-4 z-[100] flex flex-col items-end gap-2">
+    <div className="fixed bottom-2 sm:bottom-4 left-2 sm:left-auto right-2 sm:right-4 z-[100] flex flex-col items-stretch sm:items-end gap-2">
       {items.map((t) => (
         <div
           key={t.id}

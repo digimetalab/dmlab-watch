@@ -92,7 +92,7 @@ export default function Login({ theme, onToggleTheme, onLogin }) {
           <button
             type="submit"
             disabled={busy}
-            className="w-full py-2.5 rounded-lg bg-gray-900 hover:bg-gray-800 dark:bg-gray-200 dark:hover:bg-white dark:text-gray-900 text-white text-sm font-semibold disabled:opacity-50"
+            className="w-full min-h-[46px] py-2.5 rounded-lg bg-gray-900 hover:bg-gray-800 dark:bg-gray-200 dark:hover:bg-white dark:text-gray-900 text-white text-sm font-semibold disabled:opacity-50"
           >
             {busy ? "Memproses..." : mode === "login" ? "Masuk" : "Daftar"}
           </button>

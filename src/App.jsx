@@ -251,7 +251,7 @@ export default function App() {
   }
 
   return (
-    <div className="h-screen w-screen overflow-hidden flex flex-col bg-gray-100 dark:bg-[#0b0f17] text-gray-900 dark:text-gray-200">
+    <div className="min-h-screen w-full flex flex-col bg-gray-100 dark:bg-[#0b0f17] text-gray-900 dark:text-gray-200 lg:h-screen lg:overflow-hidden">
       <Toolbar
         layouts={layouts}
         activeId={activeLayout?.id ?? null}

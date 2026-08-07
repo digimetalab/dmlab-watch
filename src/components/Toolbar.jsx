@@ -20,7 +20,7 @@ import { toast } from "../lib/toast.jsx";
 function IconButton({ icon, label, onClick, active, busy, disabled }) {
   return (
     <button
-      className={`group/ib relative p-2 rounded-lg border transition-colors disabled:opacity-50 ${
+      className={`group/ib relative min-w-[40px] min-h-[40px] p-2 rounded-lg border inline-flex items-center justify-center transition-colors disabled:opacity-50 ${
         active
           ? "bg-gray-200 dark:bg-white/15 text-gray-900 dark:text-white border-gray-300 dark:border-white/25"
           : "bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 border-transparent"
@@ -128,9 +128,9 @@ export default function Toolbar({
 
   return (
     <header className="z-40 bg-white/90 backdrop-blur border-b border-gray-200 dark:bg-gray-950/90 dark:border-white/10 shrink-0">
-      <div className="max-w-[1920px] mx-auto px-4 py-2 flex items-center gap-2">
-        <div className="mr-auto flex items-center gap-3 min-w-0">
-          <img src="/favicon.svg" alt="DMLab Watch" className="w-9 h-9 rounded-lg shrink-0" />
+      <div className="max-w-[1920px] mx-auto px-2 sm:px-4 py-2 flex items-center gap-2 flex-wrap">
+        <div className="mr-auto flex items-center gap-2 sm:gap-3 min-w-0">
+          <img src="/favicon.svg" alt="DMLab Watch" className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg shrink-0" />
           <div className="leading-tight min-w-0">
             <h1 className="text-base font-bold truncate">DMLab Watch</h1>
             <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{cameraCount} CCTV terpasang</p>

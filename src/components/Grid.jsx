@@ -2,7 +2,7 @@ import Cell from "./Cell.jsx";
 
 export default function Grid({ cells, cameraMap, statuses, playing, autoplay, suspended, onPickCell, onRetry, onPlay, onFullscreen }) {
   return (
-    <div className="grid grid-cols-3 grid-rows-3 gap-2 h-full">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 lg:grid-rows-3 gap-2 lg:h-full">
       {cells.map((id, i) => {
         const cam = id ? cameraMap[id] : null;
         const status = statuses[i] ?? (cam ? "checking" : "empty");

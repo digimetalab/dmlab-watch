@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { TriangleAlert, RefreshCw } from "lucide-react";
+import { TriangleAlert, RefreshCw, Play, Maximize } from "lucide-react";
 
 const STATUS_LABEL = {
   checking: "CHECKING",
@@ -39,7 +39,7 @@ export default function Cell({ index, cam, status, playing, suspended, onPick, o
 
   return (
     <div
-      className="relative h-full w-full overflow-hidden rounded-lg border border-gray-300 dark:border-white/10 bg-gray-200 dark:bg-gray-900 group cursor-pointer"
+      className="relative w-full overflow-hidden rounded-lg border border-gray-300 dark:border-white/10 bg-gray-200 dark:bg-gray-900 group cursor-pointer aspect-video lg:aspect-auto lg:h-full"
       onClick={onPick}
     >
       {!cam && (
@@ -62,13 +62,14 @@ export default function Cell({ index, cam, status, playing, suspended, onPick, o
           <div className="absolute inset-0 bg-gradient-to-br from-gray-900 to-gray-700 opacity-80" />
           <span className="relative z-10 text-sm text-white font-medium">Klik play untuk streaming</span>
           <button
-            className="relative z-10 mt-3 px-4 py-2 rounded-md bg-gray-700 hover:bg-gray-600 text-white text-sm font-medium"
+            className="relative z-10 mt-3 min-h-[44px] px-4 py-2 rounded-md bg-gray-700 hover:bg-gray-600 text-white text-sm font-medium inline-flex items-center gap-1.5"
             onClick={(e) => {
               e.stopPropagation();
               onPlay();
             }}
           >
-            ▶ Play
+            <Play className="w-4 h-4" />
+            Play
           </button>
         </div>
       )}
@@ -99,13 +100,14 @@ export default function Cell({ index, cam, status, playing, suspended, onPick, o
           <span className="text-sm text-white">Kamera tidak dapat diakses</span>
           <span className="text-xs text-gray-400">Mungkin sedang pemeliharaan</span>
           <button
-            className="mt-1 px-3 py-1.5 rounded-md border border-white/20 text-xs text-white hover:bg-white/10"
+            className="mt-1 min-h-[44px] px-3 py-1.5 rounded-md border border-white/20 text-xs text-white hover:bg-white/10 inline-flex items-center gap-1.5"
             onClick={(e) => {
               e.stopPropagation();
               onRetry();
             }}
           >
-            ↻ Coba Lagi
+            <RefreshCw className="w-3.5 h-3.5" />
+            Coba Lagi
           </button>
         </div>
       )}
@@ -150,13 +152,14 @@ export default function Cell({ index, cam, status, playing, suspended, onPick, o
             </button>
           )}
           <button
-            className="px-3 py-1.5 rounded-md bg-white/10 hover:bg-white/20 text-white text-xs"
+            className="min-h-[40px] px-3 py-1.5 rounded-md bg-white/10 hover:bg-white/20 text-white text-xs inline-flex items-center gap-1.5"
             onClick={(e) => {
               e.stopPropagation();
               onFullscreen();
             }}
           >
-            ⛶ Perbesar
+            <Maximize className="w-3.5 h-3.5" />
+            Perbesar
           </button>
         </div>
       )}

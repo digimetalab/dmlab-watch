@@ -72,10 +72,10 @@ export default function CameraPicker({ onClose, onSelect, activeCamId, usedIds }
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-1.5 sm:p-4"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="w-full max-w-6xl h-[80vh] flex flex-col rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-white/10 overflow-hidden">
+      <div className="w-full max-w-6xl h-[94vh] sm:h-[80vh] flex flex-col rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-white/10 overflow-hidden">
         <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-white/10 shrink-0">
           <h2 className="text-lg font-semibold">Pilih Kamera</h2>
           <button
@@ -87,9 +87,9 @@ export default function CameraPicker({ onClose, onSelect, activeCamId, usedIds }
           </button>
         </div>
 
-        <div className="flex-1 min-h-0 flex">
+        <div className="flex-1 min-h-0 flex flex-col lg:flex-row">
           {/* Left: search + list */}
-          <div className="w-[38%] flex flex-col min-h-0 border-r border-gray-200 dark:border-white/10">
+          <div className="w-full lg:w-[38%] flex flex-col min-h-0 h-1/2 lg:h-auto lg:border-r border-gray-200 dark:border-white/10 border-b lg:border-b-0">
             <div className="px-3 py-3 border-b border-gray-200 dark:border-white/10 relative shrink-0">
               <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500 pointer-events-none" />
               <input
@@ -147,7 +147,7 @@ export default function CameraPicker({ onClose, onSelect, activeCamId, usedIds }
           </div>
 
           {/* Right: map */}
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 h-1/2 lg:h-auto">
             <CameraPickerMap
               items={items}
               liveMap={liveMap}
