@@ -6,6 +6,7 @@ import {
   getMe,
   getToken,
   setToken,
+  loginGoogle,
   logout as apiLogout,
   createLayout,
   updateLayout,
@@ -17,6 +18,8 @@ import Grid from "./components/Grid.jsx";
 import Toolbar from "./components/Toolbar.jsx";
 import CameraPicker from "./components/CameraPicker.jsx";
 import Login from "./components/Login.jsx";
+import ProfileModal from "./components/ProfileModal.jsx";
+import UsersModal from "./components/UsersModal.jsx";
 import ToastContainer from "./lib/toast.jsx";
 import { log } from "./lib/logger.js";
 
@@ -36,9 +39,11 @@ export default function App() {
   const [bootError, setBootError] = useState(null);
   const [user, setUser] = useState(null);
   const [authReady, setAuthReady] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
+  const [showUsers, setShowUsers] = useState(false);
   const busyRef = useRef(false);
 
-  const LS_ACTIVE = user ? `dml_active_layout_${user.username}` : "dml_active_layout";
+  const LS_ACTIVE = user ? `dml_active_layout_${user.id}` : "dml_active_layout";
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", theme === "dark");
@@ -117,11 +122,24 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id, LS_ACTIVE]);
 
-  const handleLogin = (token, u) => {
-    setToken(token);
-    setUser(u);
-    setBootError(null);
-    log("info", "auth", `login ${u.username}`);
+  const handleLogin = async (res) => {
+    try {
+      let token, u;
+      if (res && res.google) {
+        const r = await loginGoogle(res.google);
+        token = r.token;
+        u = r.user;
+      } else {
+        token = res.token;
+        u = res.user;
+      }
+      setToken(token);
+      setUser(u);
+      setBootError(null);
+      log("info", "auth", `login ${u.email || u.username}`);
+    } catch (e) {
+      log("error", "auth", `login failed: ${e.message}`);
+    }
   };
 
   const handleLogout = async () => {
@@ -267,6 +285,8 @@ export default function App() {
         onScrape={refreshData}
         onToggleAutoplay={toggleAutoplay}
         onToggleTheme={toggleTheme}
+        onOpenProfile={() => setShowProfile(true)}
+        onOpenUsers={() => setShowUsers(true)}
         onLogout={handleLogout}
       />
 
@@ -329,6 +349,14 @@ export default function App() {
             </button>
           </div>
         </div>
+      )}
+
+      {showProfile && (
+        <ProfileModal user={user} onClose={() => setShowProfile(false)} onUpdated={(u) => setUser(u)} />
+      )}
+
+      {showUsers && (
+        <UsersModal selfId={user?.id} onClose={() => setShowUsers(false)} />
       )}
 
       <ToastContainer />

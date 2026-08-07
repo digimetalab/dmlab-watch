@@ -64,12 +64,16 @@ export function probeStreams(urls) {
   return api("/api/probe", { method: "POST", body: JSON.stringify({ urls }) });
 }
 
-export function login(username, password) {
-  return api("/api/auth/login", { method: "POST", body: JSON.stringify({ username, password }) });
+export function login(identifier, password) {
+  return api("/api/auth/login", { method: "POST", body: JSON.stringify({ identifier, password }) });
 }
 
-export function register(username, password) {
-  return api("/api/auth/register", { method: "POST", body: JSON.stringify({ username, password }) });
+export function register(email, password, name) {
+  return api("/api/auth/register", { method: "POST", body: JSON.stringify({ email, password, name }) });
+}
+
+export function loginGoogle(credential) {
+  return api("/api/auth/google", { method: "POST", body: JSON.stringify({ credential }) });
 }
 
 export function getMe() {
@@ -78,4 +82,28 @@ export function getMe() {
 
 export function logout() {
   return api("/api/auth/logout", { method: "POST" }).catch(() => ({}));
+}
+
+export function updateProfile(patch) {
+  return api("/api/auth/profile", { method: "PUT", body: JSON.stringify(patch) });
+}
+
+export function changePassword(current, next) {
+  return api("/api/auth/change-password", { method: "POST", body: JSON.stringify({ current, new: next }) });
+}
+
+export function getUsers() {
+  return api("/api/users");
+}
+
+export function setUserRole(id, role) {
+  return api(`/api/users/${id}`, { method: "PUT", body: JSON.stringify({ role }) });
+}
+
+export function resetUserPassword(id, password) {
+  return api(`/api/users/${id}/reset-password`, { method: "POST", body: JSON.stringify({ password }) });
+}
+
+export function deleteUser(id) {
+  return api(`/api/users/${id}`, { method: "DELETE" });
 }

@@ -7,6 +7,7 @@ import { requireAuth } from "./middleware.js";
 import camerasRouter from "./routes/cameras.js";
 import layoutsRouter from "./routes/layouts.js";
 import authRouter from "./routes/auth.js";
+import usersRouter from "./routes/users.js";
 
 const STREAM_URL_RE = /^https:\/\/atcs\.denpasarkota\.go\.id\/stream\//;
 
@@ -20,7 +21,13 @@ export function createApp() {
   app.get("/api/health", async (req, res) => {
     try {
       const cams = Number((await getDb().execute("SELECT COUNT(*) AS c FROM cameras")).rows[0].c);
-      res.json({ ok: true, db: DB_PATH, cameras: cams, probeIntervalMs });
+      res.json({
+        ok: true,
+        db: DB_PATH,
+        cameras: cams,
+        probeIntervalMs,
+        googleClientId: process.env.GOOGLE_CLIENT_ID || "",
+      });
     } catch (e) {
       res.status(500).json({ ok: false, error: e.message });
     }
@@ -60,6 +67,7 @@ export function createApp() {
   app.use("/api/cameras", camerasRouter);
   app.use("/api/layouts", layoutsRouter);
   app.use("/api/auth", authRouter);
+  app.use("/api/users", usersRouter);
 
   // POST /api/scrape — refresh camera DB from ATCS API (requires login)
   app.post("/api/scrape", requireAuth, async (req, res) => {

@@ -27,10 +27,12 @@ This repo uses **graphify** (not codegraph) for codebase mapping/querying:
 
 ## Auth & multi-user
 
-- Tables: `users` (scrypt hash), `sessions` (Bearer token, 30 hari), `layouts.user_id` (tiap user punya layout sendiri; nama unik **per-user** — tidak ada UNIQUE global di kolom `name`).
-- Akun awal di-seed otomatis: `admin-dml` / `123456` (override via env `ADMIN_USERNAME`/`ADMIN_PASSWORD`). Migrasi lama: layout pra-multi-user diadopsi ke admin.
-- Endpoint: `POST /api/auth/login|register|logout`, `GET /api/auth/me`. Middleware `server/middleware.js` (`requireAuth`) melindungi `/api/layouts` dan `POST /api/scrape`. Cameras/probe/health publik.
-- Frontend menyimpan token di `localStorage` (`dml_token`); `src/lib/api.js` otomatis menambah `Authorization`. Layout aktif per-user: `dml_active_layout_<username>`.
+- Tables: `users` (scrypt hash, kolom `email`/`google_id`/`name`/`avatar_url`/`role`), `sessions` (Bearer token, 30 hari), `layouts.user_id` (tiap user punya layout sendiri; nama unik **per-user**).
+- Akun awal di-seed otomatis: `admin-dml` / `123456` (override via env `ADMIN_USERNAME`/`ADMIN_PASSWORD`), `role='admin'`.
+- Login: email **atau** username + password; Google via `POST /api/auth/google` (id_token diverifikasi `google-auth-library`, `GOOGLE_CLIENT_ID` dari env). Tanpa verifikasi email.
+- Endpoint: `/api/auth/login|register|google|logout|me|profile|change-password`. Middleware `server/middleware.js` (`requireAuth`, `requireAdmin`): `/api/layouts` + `POST /api/scrape` auth; `/api/users` admin-only. Cameras/probe/health publik.
+- Profile: avatar disimpan **base64** (data URL ≤ ~400KB) di `users.avatar_url` — aman serverless (tanpa storage eksternal).
+- Frontend menyimpan token di `localStorage` (`dml_token`); `src/lib/api.js` otomatis menambah `Authorization`. Layout aktif per-user: `dml_active_layout_<userId>`.
 
 ## Logging
 

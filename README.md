@@ -31,7 +31,7 @@ Aplikasi pemantau CCTV **multi-layar 3×3 (landscape)** yang menampilkan kamera 
 
 ## Fitur
 
-- **Multi-user** — tiap akun punya profil layout sendiri; halaman login dengan toggle tema dark/light. Akun awal: `admin-dml` / `123456` (ubah di env `ADMIN_USERNAME`/`ADMIN_PASSWORD`).
+- **Multi-user** — login/daftar dengan **email** atau **Google**, tiap akun punya profil (foto/avatar, nama, ganti password) & layout sendiri. Menu **Management Pengguna** untuk admin. Akun awal: `admin-dml` / `123456` (ubah di env `ADMIN_USERNAME`/`ADMIN_PASSWORD`).
 - **Grid CCTV 3×3 landscape** — sembilan layar kamera sekaligus, mengisi penuh jendela browser.
 - **Pemilihan kamera per sel** — klik sel → pilih dari daftar atau dari **peta interaktif**.
 - **Peta interaktif (Leaflet/OSM)** — semua kamera tampil sebagai marker CCTV, warna menandakan status:
@@ -238,6 +238,7 @@ Copy-Item .env.example .env   # Windows PowerShell
 | `TURSO_DATABASE_URL` | `file:data/cctv.db` | URL database libSQL/Turso (lokal file / cloud `libsql://`) |
 | `TURSO_AUTH_TOKEN` | *(kosong)* | Token Turso (wajib untuk remote/cloud) |
 | `PROBE_INTERVAL_MS` | `60000` | Interval polling status kamera (naikkan untuk hemat kuota serverless) |
+| `GOOGLE_CLIENT_ID` | *(kosong)* | Client ID OAuth Google untuk login Google |
 
 > `.env` gitignored; `.env.example` di-commit sebagai template. Kredensial ATCS tidak di-hardcode di repo agar bersih dari secret scanner — isi di `.env` (nilai publik tersedia di kode klien situs resmi). Tanpa diisi, `npm run scrape` menampilkan pesan error yang jelas.
 

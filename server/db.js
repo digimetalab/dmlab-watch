@@ -66,6 +66,39 @@ async function migrateLayouts() {
   console.log("Migrated layouts table (removed global UNIQUE on name)");
 }
 
+// Older schema had NOT NULL on username/password_hash, blocking email-only
+// users. Rebuild the table without those constraints when detected.
+async function migrateUsers() {
+  const info = await client.execute("PRAGMA table_info(users)");
+  const un = info.rows.find((r) => r.name === "username");
+  const ph = info.rows.find((r) => r.name === "password_hash");
+  const needsRebuild = (un && un.notnull === 1) || (ph && ph.notnull === 1);
+  if (!needsRebuild) return;
+  await client.execute("ALTER TABLE users RENAME TO users_old");
+  await client.execute(`
+    CREATE TABLE users (
+      id            INTEGER PRIMARY KEY AUTOINCREMENT,
+      username      TEXT,
+      password_hash TEXT,
+      email         TEXT,
+      google_id     TEXT,
+      name          TEXT,
+      avatar_url    TEXT,
+      role          TEXT DEFAULT 'user',
+      created_at    INTEGER
+    )
+  `);
+  await client.execute(`
+    INSERT INTO users (id, username, password_hash, email, google_id, name, avatar_url, role, created_at)
+    SELECT id, username, password_hash, email, google_id, name, avatar_url, role, created_at FROM users_old
+  `);
+  await client.execute("DROP TABLE users_old");
+  await client.execute(
+    "CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users(email) WHERE email IS NOT NULL AND email != ''"
+  );
+  console.log("Migrated users table (removed NOT NULL constraints)");
+}
+
 export async function seedDefaultLayout() {
   const rs = await client.execute(
     "SELECT COUNT(*) AS c FROM layouts WHERE user_id IS NULL AND is_default = 1"
@@ -83,18 +116,24 @@ export async function seedDefaultLayout() {
 
 export async function seedAdmin() {
   const rs = await client.execute("SELECT COUNT(*) AS c FROM users");
-  if (Number(rs.rows[0]?.c ?? 0) > 0) return;
-  const info = await client.execute({
-    sql: "INSERT INTO users (username, password_hash, created_at) VALUES (?, ?, ?)",
-    args: [ADMIN_USERNAME, hashPassword(ADMIN_PASSWORD), Date.now()],
-  });
-  const adminId = Number(info.lastInsertRowid);
-  // Adopt pre-existing layouts (created before multi-user) into the admin account.
+  if (Number(rs.rows[0]?.c ?? 0) === 0) {
+    const info = await client.execute({
+      sql: "INSERT INTO users (username, password_hash, name, role, created_at) VALUES (?, ?, ?, 'admin', ?)",
+      args: [ADMIN_USERNAME, hashPassword(ADMIN_PASSWORD), ADMIN_USERNAME, Date.now()],
+    });
+    const adminId = Number(info.lastInsertRowid);
+    // Adopt pre-existing layouts (created before multi-user) into the admin account.
+    await client.execute({
+      sql: "UPDATE layouts SET user_id = ? WHERE user_id IS NULL",
+      args: [adminId],
+    });
+    console.log(`Seeded admin user "${ADMIN_USERNAME}"`);
+  }
+  // Existing admin (migrated) must keep the admin role.
   await client.execute({
-    sql: "UPDATE layouts SET user_id = ? WHERE user_id IS NULL",
-    args: [adminId],
+    sql: "UPDATE users SET role = 'admin', name = COALESCE(NULLIF(name, ''), username) WHERE username = ?",
+    args: [ADMIN_USERNAME],
   });
-  console.log(`Seeded admin user "${ADMIN_USERNAME}"`);
 }
 
 // Ensure a user always has at least a Default layout (copied from the template).
@@ -148,8 +187,13 @@ export async function initDb() {
   await client.execute(`
     CREATE TABLE IF NOT EXISTS users (
       id            INTEGER PRIMARY KEY AUTOINCREMENT,
-      username      TEXT NOT NULL UNIQUE,
-      password_hash TEXT NOT NULL,
+      username      TEXT,
+      password_hash TEXT,
+      email         TEXT,
+      google_id     TEXT,
+      name          TEXT,
+      avatar_url    TEXT,
+      role          TEXT DEFAULT 'user',
       created_at    INTEGER
     )
   `);
@@ -162,6 +206,17 @@ export async function initDb() {
   `);
   await ensureColumn("layouts", "user_id", "ALTER TABLE layouts ADD COLUMN user_id INTEGER");
   await migrateLayouts();
+  await ensureColumn("users", "email", "ALTER TABLE users ADD COLUMN email TEXT");
+  await ensureColumn("users", "google_id", "ALTER TABLE users ADD COLUMN google_id TEXT");
+  await ensureColumn("users", "name", "ALTER TABLE users ADD COLUMN name TEXT");
+  await ensureColumn("users", "avatar_url", "ALTER TABLE users ADD COLUMN avatar_url TEXT");
+  await ensureColumn("users", "role", "ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'user'");
+  await ensureColumn("users", "username", "ALTER TABLE users ADD COLUMN username TEXT");
+  await ensureColumn("users", "password_hash", "ALTER TABLE users ADD COLUMN password_hash TEXT");
+  await migrateUsers();
+  await client.execute(
+    "CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users(email) WHERE email IS NOT NULL AND email != ''"
+  );
   await seedDefaultLayout();
   await seedAdmin();
 }

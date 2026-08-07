@@ -13,7 +13,7 @@ import {
   Sun,
   Moon,
   LogOut,
-  UserCircle,
+  Users,
 } from "lucide-react";
 import { toast } from "../lib/toast.jsx";
 
@@ -65,6 +65,8 @@ export default function Toolbar({
   onScrape,
   onToggleAutoplay,
   onToggleTheme,
+  onOpenProfile,
+  onOpenUsers,
   onLogout,
 }) {
   const [busy, setBusy] = useState(false);
@@ -210,18 +212,41 @@ export default function Toolbar({
             onClick={toggleFs}
           />
 
+          {user?.role === "admin" && (
+            <IconButton
+              icon={<Users className="w-5 h-5" />}
+              label="Management Pengguna"
+              onClick={onOpenUsers}
+            />
+          )}
+
           {user && (
-            <div className="ml-1 flex items-center gap-1.5 px-2 py-1 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
-              <UserCircle className="w-5 h-5 shrink-0" />
-              <span className="text-sm font-medium max-w-[10rem] truncate">{user.username}</span>
+            <button
+              className="ml-1 flex items-center gap-2 pl-1 pr-1.5 py-1 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 min-h-[40px]"
+              onClick={onOpenProfile}
+              title="Profil"
+            >
+              {user.avatar_url ? (
+                <img src={user.avatar_url} alt="" className="w-7 h-7 rounded-full object-cover bg-gray-200 dark:bg-gray-700" />
+              ) : (
+                <span className="w-7 h-7 rounded-full bg-gray-300 dark:bg-gray-700 flex items-center justify-center text-gray-600 dark:text-gray-200 font-semibold text-sm">
+                  {(user.name || user.email || "?").charAt(0).toUpperCase()}
+                </span>
+              )}
+              <span className="text-sm font-medium max-w-[8rem] truncate hidden sm:inline">
+                {user.name || user.email}
+              </span>
               <button
                 className="p-1 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-                onClick={onLogout}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onLogout();
+                }}
                 title="Keluar"
               >
                 <LogOut className="w-4 h-4" />
               </button>
-            </div>
+            </button>
           )}
         </div>
       </div>
