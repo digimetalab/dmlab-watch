@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import {
   getCameras,
   getLayouts,
+  getHealth,
   createLayout,
   updateLayout,
   deleteLayout,
@@ -27,6 +28,7 @@ export default function App() {
   const [fullscreenCam, setFullscreenCam] = useState(null);
   const [autoplay, setAutoplay] = useState(() => localStorage.getItem(LS_AUTOPLAY) !== "0");
   const [theme, setTheme] = useState(() => localStorage.getItem("dml_theme") || "dark");
+  const [probeInterval, setProbeInterval] = useState(60000);
   const [bootError, setBootError] = useState(null);
   const busyRef = useRef(false);
 
@@ -49,13 +51,14 @@ export default function App() {
     return m;
   }, [cameras]);
 
-  const { statuses, playing, retry, togglePlay } = useProbe(cells, cameraMap);
+  const { statuses, playing, retry, togglePlay } = useProbe(cells, cameraMap, probeInterval);
 
   // ---- boot: load cameras + layouts, restore last profile ----
   useEffect(() => {
     (async () => {
       try {
-        const [camR, layR] = await Promise.all([getCameras(), getLayouts()]);
+        const [camR, layR, health] = await Promise.all([getCameras(), getLayouts(), getHealth()]);
+        setProbeInterval(Number(health.probeIntervalMs) || 60000);
         setCameras(camR.data);
         setLayouts(layR.data);
         const saved = Number(localStorage.getItem(LS_ACTIVE));

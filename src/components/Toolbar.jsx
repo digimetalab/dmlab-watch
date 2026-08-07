@@ -10,7 +10,6 @@ import {
   CirclePause,
   Maximize,
   Minimize,
-  Video,
   Sun,
   Moon,
 } from "lucide-react";
@@ -127,9 +126,7 @@ export default function Toolbar({
     <header className="z-40 bg-white/90 backdrop-blur border-b border-gray-200 dark:bg-gray-950/90 dark:border-white/10 shrink-0">
       <div className="max-w-[1920px] mx-auto px-4 py-2 flex items-center gap-2">
         <div className="mr-auto flex items-center gap-3 min-w-0">
-          <div className="p-2 rounded-lg bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-gray-200">
-            <Video className="w-5 h-5" />
-          </div>
+          <img src="/favicon.svg" alt="DML CCTV" className="w-9 h-9 rounded-lg shrink-0" />
           <div className="leading-tight min-w-0">
             <h1 className="text-base font-bold truncate">DML CCTV</h1>
             <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{cameraCount} CCTV terpasang</p>

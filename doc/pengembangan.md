@@ -16,9 +16,10 @@ Panduan untuk developer yang ingin memahami arsitektur, menambah fitur, atau mem
                                           (scrape + stream via iframe)
 ```
 
-- **Backend** (`server/`) — Express + better-sqlite3. Menyimpan kamera & layout, melakukan scrape, probe status stream, logging.
+- **Backend** (`server/`) — Express + `@libsql/client` (Turso/libSQL). Menyimpan kamera & layout, melakukan scrape, probe status stream, logging.
 - **Frontend** (`src/`) — React + Vite. Render grid 3×3, modal pemilih (daftar + peta Leaflet), toolbar.
-- **Database** — SQLite di `data/cctv.db` (dibuat otomatis, gitignored).
+- **Database** — libSQL/Turso: lokal `file:data/cctv.db` (dev), remote `libsql://` (Vercel). Skema dibuat otomatis oleh `initDb()`.
+- **Vercel** — `vercel.json` → `/api/*` ke `api/index.js` (`createApp()`), static `dist/` + SPA fallback. DB & log eksternal (Turso + stdout).
 
 ---
 
@@ -67,7 +68,8 @@ src/
 - **Tailwind CSS v4** — styling utilitas inline; tema gelap/terang memakai `dark:` variant + kelas `dark` di `<html>`.
 - **Ikon** — `lucide-react`, bukan emoji (kecuali beberapa penanda status).
 - **Tidak ada warna biru** di tema — palet netral abu/hitam (dark) dan terang (light).
-- **`getDb()`** — akses database via `getDb()`, bukan `db` (hindari konflik nama).
+- **`getDb()`** — akses database via `getDb()` (klien **async** `@libsql/client`). Semua rute wajib `await`; `lastInsertRowid` BigInt → `Number()` sebelum JSON/log.
+- **Endpoint probe batch** — frontend memanggil `POST /api/probe {urls:[...]}` (satu invokasi serverless), bukan per-URL.
 
 ---
 
@@ -91,7 +93,7 @@ src/
 ### Menambah field database
 1. Ubah skema di `server/db.js` (tambahkan kolom).
 2. Ubah mapping di `server/scrape.js`.
-3. Hapus DB lama: `data/cctv.db`, lalu jalankan ulang `npm run scrape`.
+3. Hapus DB lokal: `data/cctv.db`, lalu jalankan ulang `npm run scrape`. Untuk Turso cloud, `npm run scrape` memakai `TURSO_DATABASE_URL`/`TURSO_AUTH_TOKEN`.
 
 ---
 

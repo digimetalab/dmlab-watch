@@ -7,7 +7,7 @@
 ![React](https://img.shields.io/badge/React-19-22c55e?style=flat-square&logo=react&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-6-a855f7?style=flat-square&logo=vite&logoColor=white)
 ![Express](https://img.shields.io/badge/Express-4-000000?style=flat-square&logo=express&logoColor=white)
-![SQLite](https://img.shields.io/badge/SQLite-better--sqlite3-64748b?style=flat-square&logo=sqlite&logoColor=white)
+![SQLite](https://img.shields.io/badge/DB-libSQL__%2F__Turso-64748b?style=flat-square&logo=sqlite&logoColor=white)
 ![Leaflet](https://img.shields.io/badge/Leaflet-1.9-65a30d?style=flat-square&logo=leaflet&logoColor=white)
 ![Tailwind](https://img.shields.io/badge/Tailwind_CSS-4-38bdf8?style=flat-square&logo=tailwindcss&logoColor=white)
 
@@ -22,6 +22,10 @@
 Aplikasi pemantau CCTV **multi-layar 3×3 (landscape)** yang menampilkan kamera lalu lintas publik Kota Denpasar secara **real-time**. Data kamera di-scrape dari situs publik ATCS Kota Denpasar, disimpan dalam database SQLite, lalu ditampilkan dalam grid 3×3 yang bisa diatur sesuai kebutuhan.
 
 > Dikembangkan oleh **[Digimetalab](https://digimetalab.my.id)** · [digimetalab@gmail.com](mailto:digimetalab@gmail.com)
+
+## Live Demo
+
+**https://watch.digimetalab.my.id** — deployment Vercel (free) + database Turso.
 
 ---
 
@@ -53,7 +57,7 @@ Aplikasi pemantau CCTV **multi-layar 3×3 (landscape)** yang menampilkan kamera 
 | Frontend | Vite + React (JSX/JavaScript) + Tailwind CSS v4 + lucide-react |
 | Peta | Leaflet + OpenStreetMap tiles |
 | Backend | Express (Node.js) |
-| Database | better-sqlite3 (SQLite) |
+| Database | libSQL/Turso via `@libsql/client` (SQLite-compatible; lokal `file:` / cloud `libsql://`) |
 | Sumber Data | API publik ATCS Kota Denpasar |
 
 ---
@@ -86,14 +90,19 @@ Setiap kamera menyimpan: nama lokasi, keterangan, koordinat (`lat`/`lon`), kota/
 # 1. Install dependencies
 npm install
 
-# 2. Scrape data CCTV dari API ATCS (wajib sekali sebelum menjalankan)
+# 2. Siapkan konfigurasi (.env) — kredensial ATCS (lihat bagian Konfigurasi Environment)
+Copy-Item .env.example .env    # lalu isi ATCS_CLIENT_ID & ATCS_CLIENT_SECRET
+
+# 3. Scrape data CCTV dari API ATCS (wajib sekali sebelum menjalankan)
 npm run scrape
 
-# 3. Jalankan mode pengembangan (API :3001 + Vite :5173)
+# 4. Jalankan mode pengembangan (API :3001 + Vite :5173)
 npm run dev
 ```
 
 Buka browser ke: **http://localhost:5173**
+
+> Lokal memakai SQLite file (`TURSO_DATABASE_URL=file:data/cctv.db`). Untuk deploy ke Vercel, set `TURSO_DATABASE_URL`/`TURSO_AUTH_TOKEN` dari Turso (lihat `doc/instalasi.md`).
 
 ### Mode Produksi
 
@@ -176,6 +185,7 @@ dml-cctv/
 | GET | `/api/cameras/:id` | Detail satu kamera |
 | POST | `/api/scrape` | Sinkronkan ulang kamera dari API ATCS |
 | GET | `/api/probe?url=...` | Cek status live/offline satu stream (server-side) |
+| POST | `/api/probe` | Cek status batch `{ urls: [...] }` → `{ results: [...] }` |
 
 ### Layouts
 | Method | Endpoint | Deskripsi |
@@ -224,6 +234,9 @@ Copy-Item .env.example .env   # Windows PowerShell
 | `ATCS_API_BASE` | `https://atcs.denpasarkota.go.id/api/v3/pv/ldevice` | Endpoint API ATCS |
 | `ATCS_CLIENT_ID` | *(diisi, kredensial publik)* | Kredensial publik klien ATCS |
 | `ATCS_CLIENT_SECRET` | *(diisi, kredensial publik)* | Kredensial publik klien ATCS |
+| `TURSO_DATABASE_URL` | `file:data/cctv.db` | URL database libSQL/Turso (lokal file / cloud `libsql://`) |
+| `TURSO_AUTH_TOKEN` | *(kosong)* | Token Turso (wajib untuk remote/cloud) |
+| `PROBE_INTERVAL_MS` | `60000` | Interval polling status kamera (naikkan untuk hemat kuota serverless) |
 
 > `.env` gitignored; `.env.example` di-commit sebagai template. Kredensial ATCS tidak di-hardcode di repo agar bersih dari secret scanner — isi di `.env` (nilai publik tersedia di kode klien situs resmi). Tanpa diisi, `npm run scrape` menampilkan pesan error yang jelas.
 

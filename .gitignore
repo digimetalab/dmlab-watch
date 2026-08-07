@@ -9,3 +9,9 @@ data/*.db-*
 .env
 .env.local
 .env.*.local
+
+# Graphify knowledge graph (generated — rebuild with /graphify)
+graphify-out/
+
+.vercel
+.env*

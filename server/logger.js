@@ -6,15 +6,19 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const LOG_DIR = path.join(__dirname, "..", "data");
 const LOG_FILE = process.env.CCTV_LOG || path.join(LOG_DIR, "app.log");
 
-fs.mkdirSync(LOG_DIR, { recursive: true });
-
 export function log(level = "info", source = "api", message = "", data) {
   const ts = new Date().toISOString();
   const extra = data !== undefined ? ` ${JSON.stringify(data)}` : "";
-  const line = `[${ts}] [${level.toUpperCase()}] [${source}] ${message}${extra}\n`;
+  const line = `[${ts}] [${level.toUpperCase()}] [${source}] ${message}${extra}`;
   try {
-    fs.appendFileSync(LOG_FILE, line);
-  } catch {}
+    fs.mkdirSync(LOG_DIR, { recursive: true });
+    fs.appendFileSync(LOG_FILE, line + "\n");
+  } catch {
+    // Serverless filesystems are read-only — fall back to stdout (Vercel Logs).
+    if (level === "error") console.error(line);
+    else if (level === "warn") console.warn(line);
+    else console.log(line);
+  }
   return line;
 }
 

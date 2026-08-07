@@ -1,62 +1,90 @@
 import { useEffect, useRef, useState } from "react";
-import { probeStream } from "../lib/api.js";
+import { probeStreams } from "../lib/api.js";
 
-const POLL_MS = 60_000;
-
-export function useProbe(cells, cameraMap) {
+export function useProbe(cells, cameraMap, intervalMs = 60_000) {
   const [statuses, setStatuses] = useState({});
   const [playing, setPlaying] = useState({});
   const lastCells = useRef("");
+  const busy = useRef(false);
 
-  const probeOne = async (index, cam) => {
-    if (!cam) return;
-    // Only show "checking" when there is no prior status. During periodic
-    // re-checks keep the old status so a live iframe is never unmounted.
-    setStatuses((s) => (s[index] === undefined ? { ...s, [index]: "checking" } : s));
+  const pairsFor = (indexes) => {
+    const pairs = [];
+    for (const i of indexes) {
+      const id = cells[i];
+      const cam = id ? cameraMap[id] : null;
+      if (cam) pairs.push([i, cam]);
+    }
+    return pairs;
+  };
+
+  const probeBatch = async (pairs) => {
+    if (!pairs.length || busy.current) return;
+    busy.current = true;
+    const urls = [...new Set(pairs.map(([, cam]) => cam.url_proxy_hls))];
     try {
-      const r = await probeStream(cam.url_proxy_hls);
-      const st = r.status === "online" ? "online" : "offline";
-      setStatuses((s) => ({ ...s, [index]: st }));
-      if (st !== "online") setPlaying((p) => ({ ...p, [index]: false }));
+      const r = await probeStreams(urls);
+      const byUrl = {};
+      for (const item of r.results) byUrl[item.url] = item.status;
+      setStatuses((s) => {
+        const next = { ...s };
+        for (const [i, cam] of pairs) {
+          const st = byUrl[cam.url_proxy_hls] === "online" ? "online" : "offline";
+          next[i] = st;
+        }
+        return next;
+      });
+      const offlineIdx = pairs
+        .filter(([, cam]) => byUrl[cam.url_proxy_hls] !== "online")
+        .map(([i]) => i);
+      if (offlineIdx.length) {
+        setPlaying((p) => {
+          const n = { ...p };
+          for (const i of offlineIdx) n[i] = false;
+          return n;
+        });
+      }
     } catch {
-      setStatuses((s) => ({ ...s, [index]: "offline" }));
-      setPlaying((p) => ({ ...p, [index]: false }));
+      setStatuses((s) => {
+        const next = { ...s };
+        for (const [i] of pairs) next[i] = "offline";
+        return next;
+      });
+    } finally {
+      busy.current = false;
     }
   };
 
-  const joined = cells.join(",");
-
   // Probe cells that are new to the layout (no prior status yet).
   useEffect(() => {
+    const joined = cells.join(",");
     const changed = joined !== lastCells.current;
     lastCells.current = joined;
     if (!changed) return;
-    const unprobed = cells
-      .map((id, i) => ({ i, cam: id ? cameraMap[id] : null }))
-      .filter((x) => x.cam && statuses[x.i] === undefined);
-    unprobed.forEach(({ i, cam }) => probeOne(i, cam));
+    const newIndexes = [];
+    cells.forEach((id, i) => {
+      if (id && statuses[i] === undefined && cameraMap[id]) newIndexes.push(i);
+    });
+    if (newIndexes.length) probeBatch(pairsFor(newIndexes));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [joined]);
+  }, [cells.join(",")]);
 
-  // Periodic re-check. Never demotes a live cell to "checking", so the
-  // iframe stays mounted and the stream does not reload/flash.
+  // Periodic re-check (batched into one request). Never demotes a live cell to
+  // "checking", so the iframe stays mounted and the stream does not reload.
   useEffect(() => {
     const t = setInterval(() => {
+      const indexes = [];
       cells.forEach((id, i) => {
-        const cam = id ? cameraMap[id] : null;
-        if (cam) probeOne(i, cam);
+        if (id && cameraMap[id]) indexes.push(i);
       });
-    }, POLL_MS);
+      if (indexes.length) probeBatch(pairsFor(indexes));
+    }, intervalMs);
     return () => clearInterval(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [joined]);
+  }, [cells.join(","), intervalMs]);
 
   const retry = (index) => {
-    const cam = cells[index] ? cameraMap[cells[index]] : null;
-    if (cam) {
-      setStatuses((s) => ({ ...s, [index]: "checking" }));
-      probeOne(index, cam);
-    }
+    setStatuses((s) => ({ ...s, [index]: "checking" }));
+    probeBatch(pairsFor([index]));
   };
 
   const togglePlay = (index) => setPlaying((p) => ({ ...p, [index]: !p[index] }));

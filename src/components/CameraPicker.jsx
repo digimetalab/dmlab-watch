@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Search, Camera, X } from "lucide-react";
-import { getCameras, probeStream } from "../lib/api.js";
+import { getCameras, probeStreams } from "../lib/api.js";
 import CameraPickerMap from "./CameraPickerMap.jsx";
 
 export default function CameraPicker({ onClose, onSelect, activeCamId, usedIds }) {
@@ -32,18 +32,31 @@ export default function CameraPicker({ onClose, onSelect, activeCamId, usedIds }
     };
   }, [q]);
 
-  // Probe live/offline status for all cameras (server caches 60s)
+  // Probe live/offline status for all cameras (batched; server caches 60s)
   useEffect(() => {
     let alive = true;
     const unprobed = items.filter((c) => c.url_proxy_hls && liveMap[c.id] === undefined);
-    unprobed.forEach(async (c) => {
+    if (!unprobed.length) return;
+    (async () => {
       try {
-        const r = await probeStream(c.url_proxy_hls);
-        if (alive) setLiveMap((m) => ({ ...m, [c.id]: r.status }));
+        const r = await probeStreams(unprobed.map((c) => c.url_proxy_hls));
+        if (!alive) return;
+        const byUrl = {};
+        for (const item of r.results) byUrl[item.url] = item.status;
+        setLiveMap((m) => {
+          const next = { ...m };
+          for (const c of unprobed) next[c.id] = byUrl[c.url_proxy_hls] || "offline";
+          return next;
+        });
       } catch {
-        if (alive) setLiveMap((m) => ({ ...m, [c.id]: "offline" }));
+        if (alive)
+          setLiveMap((m) => {
+            const next = { ...m };
+            for (const c of unprobed) next[c.id] = "offline";
+            return next;
+          });
       }
-    });
+    })();
     return () => {
       alive = false;
     };

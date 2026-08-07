@@ -18,6 +18,10 @@ export function getCameras(q) {
   return api(`/api/cameras${q ? `?q=${encodeURIComponent(q)}` : ""}`);
 }
 
+export function getHealth() {
+  return api("/api/health");
+}
+
 export function getLayouts() {
   return api("/api/layouts");
 }
@@ -40,4 +44,8 @@ export function scrapeNow() {
 
 export function probeStream(url) {
   return api(`/api/probe?url=${encodeURIComponent(url)}`);
+}
+
+export function probeStreams(urls) {
+  return api("/api/probe", { method: "POST", body: JSON.stringify({ urls }) });
 }

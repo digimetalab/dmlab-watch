@@ -19,58 +19,82 @@ function toLayout(row) {
 }
 
 // GET /api/layouts
-router.get("/", (req, res) => {
-  const rows = getDb().prepare("SELECT * FROM layouts ORDER BY is_default DESC, name").all();
-  res.json({ data: rows.map(toLayout) });
+router.get("/", async (req, res) => {
+  try {
+    const rs = await getDb().execute("SELECT * FROM layouts ORDER BY is_default DESC, name");
+    res.json({ data: rs.rows.map(toLayout) });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
 // POST /api/layouts  { name, cells? }
-router.post("/", (req, res) => {
-  const name = (req.body?.name ?? "").toString().trim();
-  if (!name) return res.status(400).json({ error: "name required" });
-  const cells = req.body?.cells ?? [];
-  if (!Array.isArray(cells) || cells.length !== 9) {
-    return res.status(400).json({ error: "cells must be an array of 9 ids" });
-  }
+router.post("/", async (req, res) => {
   try {
-    const info = getDb()
-      .prepare("INSERT INTO layouts (name, cells, created_at) VALUES (?, ?, ?)")
-      .run(name, JSON.stringify(cells.map(Number)), Date.now());
-    const row = getDb().prepare("SELECT * FROM layouts WHERE id = ?").get(info.lastInsertRowid);
-    log("info", "layout", `created layout "${name}"`, { id: info.lastInsertRowid });
+    const name = (req.body?.name ?? "").toString().trim();
+    if (!name) return res.status(400).json({ error: "name required" });
+    const cells = req.body?.cells ?? [];
+    if (!Array.isArray(cells) || cells.length !== 9) {
+      return res.status(400).json({ error: "cells must be an array of 9 ids" });
+    }
+    const info = await getDb().execute({
+      sql: "INSERT INTO layouts (name, cells, created_at) VALUES (?, ?, ?)",
+      args: [name, JSON.stringify(cells.map(Number)), Date.now()],
+    });
+    const row = (
+      await getDb().execute({
+        sql: "SELECT * FROM layouts WHERE id = ?",
+        args: [Number(info.lastInsertRowid)],
+      })
+    ).rows[0];
+    log("info", "layout", `created layout "${name}"`, { id: Number(info.lastInsertRowid) });
     res.status(201).json(toLayout(row));
   } catch (e) {
     if (String(e.message).includes("UNIQUE")) return res.status(409).json({ error: "name exists" });
-    throw e;
+    res.status(500).json({ error: e.message });
   }
 });
 
 // PUT /api/layouts/:id  { name?, cells? }
-router.put("/:id", (req, res) => {
-  const id = Number(req.params.id);
-  const row = getDb().prepare("SELECT * FROM layouts WHERE id = ?").get(id);
-  if (!row) return res.status(404).json({ error: "not found" });
-  const name = req.body?.name != null ? req.body.name.toString().trim() : row.name;
-  const cells = req.body?.cells != null ? JSON.stringify(req.body.cells.map(Number)) : row.cells;
+router.put("/:id", async (req, res) => {
   try {
-    getDb().prepare("UPDATE layouts SET name = ?, cells = ? WHERE id = ?").run(name, cells, id);
-    const updated = getDb().prepare("SELECT * FROM layouts WHERE id = ?").get(id);
-    log("info", "layout", `updated layout #${id}`, { name: updated.name, cells: JSON.parse(updated.cells) });
+    const id = Number(req.params.id);
+    const row = (
+      await getDb().execute({ sql: "SELECT * FROM layouts WHERE id = ?", args: [id] })
+    ).rows[0];
+    if (!row) return res.status(404).json({ error: "not found" });
+    const name = req.body?.name != null ? req.body.name.toString().trim() : row.name;
+    const cells =
+      req.body?.cells != null ? JSON.stringify(req.body.cells.map(Number)) : row.cells;
+    await getDb().execute({
+      sql: "UPDATE layouts SET name = ?, cells = ? WHERE id = ?",
+      args: [name, cells, id],
+    });
+    const updated = (
+      await getDb().execute({ sql: "SELECT * FROM layouts WHERE id = ?", args: [id] })
+    ).rows[0];
+    log("info", "layout", `updated layout #${id}`, { name: updated.name, cells: parseCells(updated.cells) });
     res.json(toLayout(updated));
   } catch (e) {
     if (String(e.message).includes("UNIQUE")) return res.status(409).json({ error: "name exists" });
-    throw e;
+    res.status(500).json({ error: e.message });
   }
 });
 
 // DELETE /api/layouts/:id
-router.delete("/:id", (req, res) => {
-  const id = Number(req.params.id);
-  const row = getDb().prepare("SELECT * FROM layouts WHERE id = ?").get(id);
-  if (!row) return res.status(404).json({ error: "not found" });
-  getDb().prepare("DELETE FROM layouts WHERE id = ?").run(id);
-  log("info", "layout", `deleted layout #${id}`, { name: row.name });
-  res.json({ ok: true });
+router.delete("/:id", async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    const row = (
+      await getDb().execute({ sql: "SELECT * FROM layouts WHERE id = ?", args: [id] })
+    ).rows[0];
+    if (!row) return res.status(404).json({ error: "not found" });
+    await getDb().execute({ sql: "DELETE FROM layouts WHERE id = ?", args: [id] });
+    log("info", "layout", `deleted layout #${id}`, { name: row.name });
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
 export default router;
