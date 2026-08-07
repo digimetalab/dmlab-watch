@@ -8,11 +8,16 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DATA_DIR = path.join(__dirname, "..", "data");
 
 // Local dev: file URL (relative to cwd). Production (Vercel): Turso remote URL + token.
+const IS_REMOTE = Boolean(process.env.TURSO_DATABASE_URL);
 const DB_URL =
   process.env.TURSO_DATABASE_URL ||
   "file:" + path.join(DATA_DIR, "cctv.db").replace(/\\/g, "/");
 
-fs.mkdirSync(DATA_DIR, { recursive: true });
+// Only touch the local data dir for `file:` mode. Serverless filesystems are
+// read-only (and have no pre-existing dir), so never mkdir there.
+if (!IS_REMOTE) {
+  fs.mkdirSync(DATA_DIR, { recursive: true });
+}
 
 const client = createClient({
   url: DB_URL,
