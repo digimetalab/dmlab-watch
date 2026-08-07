@@ -1,6 +1,6 @@
-# Petunjuk Penggunaan — DML CCTV
+# Petunjuk Penggunaan — DMLab Watch
 
-Panduan penggunaan aplikasi **DML CCTV** (multi-layar 3×3 live CCTV).
+Panduan penggunaan aplikasi **DMLab Watch** (multi-layar 3×3 live CCTV).
 
 ---
 

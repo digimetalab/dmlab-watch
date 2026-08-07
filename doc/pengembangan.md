@@ -1,4 +1,4 @@
-# Panduan Pengembangan — DML CCTV
+# Panduan Pengembangan — DMLab Watch
 
 Panduan untuk developer yang ingin memahami arsitektur, menambah fitur, atau memodifikasi kode.
 

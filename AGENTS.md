@@ -1,4 +1,4 @@
-# AGENTS.md — DML CCTV
+# AGENTS.md — DMLab Watch
 
 Multi-screen 3×3 landscape CCTV viewer. Data scraped from Denpasar ATCS public CCTV
 (https://atcs.denpasarkota.go.id/streaming). Stack: Vite + React (JSX, JavaScript, no TS) +

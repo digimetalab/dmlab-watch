@@ -1,4 +1,4 @@
-# Dokumentasi DML CCTV
+# Dokumentasi DMLab Watch
 
 > Aplikasi pemantau CCTV multi-layar 3×3 dari data publik ATCS Kota Denpasar.
 > Dikembangkan oleh **Digimetalab** · [digimetalab.my.id](https://digimetalab.my.id)

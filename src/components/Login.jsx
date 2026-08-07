@@ -36,8 +36,8 @@ export default function Login({ theme, onToggleTheme, onLogin }) {
 
       <div className="w-full max-w-sm mx-4">
         <div className="flex flex-col items-center mb-6">
-          <img src="/favicon.svg" alt="DML CCTV" className="w-16 h-16 rounded-2xl mb-3" />
-          <h1 className="text-2xl font-bold">DML CCTV</h1>
+          <img src="/favicon.svg" alt="DMLab Watch" className="w-16 h-16 rounded-2xl mb-3" />
+          <h1 className="text-2xl font-bold">DMLab Watch</h1>
           <p className="text-sm text-gray-500 dark:text-gray-400">Multi Layar 3×3 Live CCTV</p>
         </div>
 

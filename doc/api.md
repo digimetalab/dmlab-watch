@@ -1,4 +1,4 @@
-# Panduan API — DML CCTV
+# Panduan API — DMLab Watch
 
 Referensi endpoint REST API yang disediakan server Express (default `:3001`).
 

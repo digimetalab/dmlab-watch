@@ -1,4 +1,4 @@
-# Instalasi — DML CCTV
+# Instalasi — DMLab Watch
 
 Panduan lengkap instalasi, konfigurasi, dan menjalankan aplikasi.
 

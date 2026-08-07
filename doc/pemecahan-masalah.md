@@ -1,6 +1,6 @@
-# Pemecahan Masalah — DML CCTV
+# Pemecahan Masalah — DMLab Watch
 
-Kumpulan solusi untuk masalah umum pada aplikasi **DML CCTV**.
+Kumpulan solusi untuk masalah umum pada aplikasi **DMLab Watch**.
 
 ---
 
