@@ -3,6 +3,10 @@ import {
   getCameras,
   getLayouts,
   getHealth,
+  getMe,
+  getToken,
+  setToken,
+  logout as apiLogout,
   createLayout,
   updateLayout,
   deleteLayout,
@@ -12,10 +16,10 @@ import { useProbe } from "./lib/useProbe.js";
 import Grid from "./components/Grid.jsx";
 import Toolbar from "./components/Toolbar.jsx";
 import CameraPicker from "./components/CameraPicker.jsx";
+import Login from "./components/Login.jsx";
 import ToastContainer from "./lib/toast.jsx";
 import { log } from "./lib/logger.js";
 
-const LS_ACTIVE = "dml_active_layout";
 const LS_AUTOPLAY = "dml_autoplay";
 const EMPTY_CELLS = [null, null, null, null, null, null, null, null, null];
 
@@ -30,7 +34,11 @@ export default function App() {
   const [theme, setTheme] = useState(() => localStorage.getItem("dml_theme") || "dark");
   const [probeInterval, setProbeInterval] = useState(60000);
   const [bootError, setBootError] = useState(null);
+  const [user, setUser] = useState(null);
+  const [authReady, setAuthReady] = useState(false);
   const busyRef = useRef(false);
+
+  const LS_ACTIVE = user ? `dml_active_layout_${user.username}` : "dml_active_layout";
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", theme === "dark");
@@ -53,8 +61,28 @@ export default function App() {
 
   const { statuses, playing, retry, togglePlay } = useProbe(cells, cameraMap, probeInterval);
 
-  // ---- boot: load cameras + layouts, restore last profile ----
+  // ---- auth check on boot ----
   useEffect(() => {
+    (async () => {
+      const token = getToken();
+      if (!token) {
+        setAuthReady(true);
+        return;
+      }
+      try {
+        const r = await getMe();
+        setUser(r.user);
+        log("info", "auth", `session restored ${r.user.username}`);
+      } catch {
+        setToken(null);
+      }
+      setAuthReady(true);
+    })();
+  }, []);
+
+  // ---- load data once authenticated ----
+  useEffect(() => {
+    if (!user) return;
     (async () => {
       try {
         const [camR, layR, health] = await Promise.all([getCameras(), getLayouts(), getHealth()]);
@@ -86,7 +114,28 @@ export default function App() {
         log("error", "app boot", `failed: ${e.message}`);
       }
     })();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id, LS_ACTIVE]);
+
+  const handleLogin = (token, u) => {
+    setToken(token);
+    setUser(u);
+    setBootError(null);
+    log("info", "auth", `login ${u.username}`);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await apiLogout();
+    } catch {}
+    setToken(null);
+    setUser(null);
+    setLayouts([]);
+    setActiveLayout(null);
+    setCells(EMPTY_CELLS);
+    setCameras([]);
+    log("info", "auth", "logout");
+  };
 
   const padCells = (arr) => {
     const c = Array.isArray(arr) ? arr.slice(0, 9) : [];
@@ -174,6 +223,18 @@ export default function App() {
     });
   };
 
+  if (!authReady) {
+    return (
+      <div className="h-screen w-screen flex items-center justify-center bg-gray-100 dark:bg-[#0b0f17]">
+        <div className="w-10 h-10 border-4 border-gray-300 dark:border-white/15 border-t-gray-700 dark:border-t-white rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Login theme={theme} onToggleTheme={toggleTheme} onLogin={handleLogin} />;
+  }
+
   if (bootError) {
     return (
       <div className="min-h-screen flex items-center justify-center p-6 bg-gray-100 dark:bg-[#0b0f17] text-gray-900 dark:text-gray-200">
@@ -198,6 +259,7 @@ export default function App() {
         cameraCount={cameras.length}
         autoplay={autoplay}
         theme={theme}
+        user={user}
         onSelectLayout={selectLayout}
         onCreateLayout={createProfile}
         onRenameLayout={renameProfile}
@@ -205,6 +267,7 @@ export default function App() {
         onScrape={refreshData}
         onToggleAutoplay={toggleAutoplay}
         onToggleTheme={toggleTheme}
+        onLogout={handleLogout}
       />
 
       <main className="flex-1 min-h-0 p-2 max-w-[1920px] w-full mx-auto">

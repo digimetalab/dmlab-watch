@@ -12,6 +12,8 @@ import {
   Minimize,
   Sun,
   Moon,
+  LogOut,
+  UserCircle,
 } from "lucide-react";
 import { toast } from "../lib/toast.jsx";
 
@@ -55,6 +57,7 @@ export default function Toolbar({
   cameraCount,
   autoplay,
   theme,
+  user,
   onSelectLayout,
   onCreateLayout,
   onRenameLayout,
@@ -62,6 +65,7 @@ export default function Toolbar({
   onScrape,
   onToggleAutoplay,
   onToggleTheme,
+  onLogout,
 }) {
   const [busy, setBusy] = useState(false);
   const [open, setOpen] = useState(false);
@@ -205,6 +209,20 @@ export default function Toolbar({
             label={fs ? "Keluar Layar Penuh" : "Layar Penuh"}
             onClick={toggleFs}
           />
+
+          {user && (
+            <div className="ml-1 flex items-center gap-1.5 px-2 py-1 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
+              <UserCircle className="w-5 h-5 shrink-0" />
+              <span className="text-sm font-medium max-w-[10rem] truncate">{user.username}</span>
+              <button
+                className="p-1 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                onClick={onLogout}
+                title="Keluar"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </header>

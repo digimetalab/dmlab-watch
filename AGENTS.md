@@ -25,6 +25,13 @@ This repo uses **graphify** (not codegraph) for codebase mapping/querying:
 - Probe is **batched** (`POST /api/probe {urls:[...]}`) to cut serverless invocations; frontend polls once per interval (`probeIntervalMs` from `/api/health`).
 - Logging falls back to stdout on serverless (file FS unavailable).
 
+## Auth & multi-user
+
+- Tables: `users` (scrypt hash), `sessions` (Bearer token, 30 hari), `layouts.user_id` (tiap user punya layout sendiri; nama unik **per-user** — tidak ada UNIQUE global di kolom `name`).
+- Akun awal di-seed otomatis: `admin-dml` / `123456` (override via env `ADMIN_USERNAME`/`ADMIN_PASSWORD`). Migrasi lama: layout pra-multi-user diadopsi ke admin.
+- Endpoint: `POST /api/auth/login|register|logout`, `GET /api/auth/me`. Middleware `server/middleware.js` (`requireAuth`) melindungi `/api/layouts` dan `POST /api/scrape`. Cameras/probe/health publik.
+- Frontend menyimpan token di `localStorage` (`dml_token`); `src/lib/api.js` otomatis menambah `Authorization`. Layout aktif per-user: `dml_active_layout_<username>`.
+
 ## Logging
 
 All activity (backend + frontend) is appended to `data/app.log` (gitignored via `*.log`):

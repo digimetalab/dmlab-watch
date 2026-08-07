@@ -31,6 +31,7 @@ Aplikasi pemantau CCTV **multi-layar 3×3 (landscape)** yang menampilkan kamera 
 
 ## Fitur
 
+- **Multi-user** — tiap akun punya profil layout sendiri; halaman login dengan toggle tema dark/light. Akun awal: `admin-dml` / `123456` (ubah di env `ADMIN_USERNAME`/`ADMIN_PASSWORD`).
 - **Grid CCTV 3×3 landscape** — sembilan layar kamera sekaligus, mengisi penuh jendela browser.
 - **Pemilihan kamera per sel** — klik sel → pilih dari daftar atau dari **peta interaktif**.
 - **Peta interaktif (Leaflet/OSM)** — semua kamera tampil sebagai marker CCTV, warna menandakan status:

@@ -1,6 +1,5 @@
 import { Router } from "express";
 import { getDb } from "../db.js";
-import { scrape } from "../scrape.js";
 
 const router = Router();
 
@@ -63,16 +62,6 @@ router.get("/:id", async (req, res) => {
     res.json(toCam(row));
   } catch (e) {
     res.status(500).json({ error: e.message });
-  }
-});
-
-// POST /api/scrape  — refresh camera DB from ATCS API
-router.post("/scrape", async (req, res) => {
-  try {
-    const r = await scrape();
-    res.json(r);
-  } catch (e) {
-    res.status(502).json({ error: e.message });
   }
 });
 

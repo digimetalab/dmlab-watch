@@ -2,8 +2,11 @@ import express from "express";
 import { getDb, DB_PATH } from "./db.js";
 import { probeStream, probeMany } from "./probe.js";
 import { requestLogger, log } from "./logger.js";
+import { scrape } from "./scrape.js";
+import { requireAuth } from "./middleware.js";
 import camerasRouter from "./routes/cameras.js";
 import layoutsRouter from "./routes/layouts.js";
+import authRouter from "./routes/auth.js";
 
 const STREAM_URL_RE = /^https:\/\/atcs\.denpasarkota\.go\.id\/stream\//;
 
@@ -56,6 +59,16 @@ export function createApp() {
 
   app.use("/api/cameras", camerasRouter);
   app.use("/api/layouts", layoutsRouter);
+  app.use("/api/auth", authRouter);
+
+  // POST /api/scrape — refresh camera DB from ATCS API (requires login)
+  app.post("/api/scrape", requireAuth, async (req, res) => {
+    try {
+      res.json(await scrape());
+    } catch (e) {
+      res.status(502).json({ error: e.message });
+    }
+  });
 
   return app;
 }
